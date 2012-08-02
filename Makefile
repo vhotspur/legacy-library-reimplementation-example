@@ -36,9 +36,8 @@ liblegacy.a: legacy/patched_system/system.o legacy/patched_self/delta.o
 	$(AR) rcs $@ $^
 	
 legacy/patched_self/%.o: legacy/%.o
-	$(OBJCOPY) $(LIBCOMPAT_REDEFINES_PHASE_ONE) $< legacy/patched_self/__tmp.o
-	$(OBJCOPY) $(LIBCOMPAT_REDEFINES_PHASE_TWO) legacy/patched_self/__tmp.o $@
-	rm -f legacy/patched_self/__tmp.o
+	$(OBJCOPY) $(LIBCOMPAT_REDEFINES_PHASE_ONE) $< $@
+	$(OBJCOPY) $(LIBCOMPAT_REDEFINES_PHASE_TWO) $@ $@
 
 legacy/patched_system/%.o: system/%.o
 	$(OBJCOPY) $(LIBSYSTEM_REDEFINES) $< $@
