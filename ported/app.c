@@ -1,6 +1,7 @@
 #include <delta.h>
 #include <stdio.h>
 
+typedef int (*alpha_func_t)(int);
 
 void test_bravo(const char *msg) {
 	char buffer[100];
@@ -15,6 +16,12 @@ void test_alpha(int param, int opt) {
 	printf("test_alpha(%d, %d) -> %d\n", param, opt, result);
 }
 
+void test_alpha_ptr(alpha_func_t func, int param, int opt) {
+	alpha_opt = opt;
+	int result = func(param);
+	printf("test_alpha_ptr(%d, %d) -> %d\n", param, opt, result);
+}
+
 void test_some_data(some_data_t *data) {
 	printf("some_data_t = { %d, %p }\n", data->alpha, data->next);
 }
@@ -22,6 +29,10 @@ void test_some_data(some_data_t *data) {
 int main(int argc, char *argv[]) {
 	test_alpha(20, 15);
 	test_alpha(5, 4);
+
+	alpha_func_t func = &alpha;
+	test_alpha_ptr(func, 1, 7);
+	test_alpha_ptr(func, 16, -2);
 
 	test_bravo("Hello, World!");
 	test_bravo("!");
