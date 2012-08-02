@@ -3,8 +3,7 @@
 
 #include <stddef.h>
 
-extern int alpha(int);
-extern int alpha_opt;
+extern int alpha(int, int);
 extern const char *bravo_opt;
 extern void bravo(char *, const char *, size_t);
 

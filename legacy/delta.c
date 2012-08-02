@@ -7,8 +7,7 @@ int legacy_alpha_opt = 52;
 char *legacy_bravo_opt;
 
 int legacy_alpha(int param) {
-	alpha_opt = legacy_alpha_opt + 5;
-	return alpha(param);
+	return alpha(param, legacy_alpha_opt);
 }
 
 char *legacy_bravo(char *dest, const char *src) {
