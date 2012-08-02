@@ -1,5 +1,5 @@
 
-COMPAT_CFLAGS = -Ilegacy
+LEGACY_CFLAGS = -Ilegacy
 OBJCOPY = objcopy
 CFLAGS = -Wall -Werror
 CC = gcc
@@ -10,18 +10,18 @@ DISTNAME = func_renaming
 
 LIBSYSTEM_REDEFINES := \
 	$(shell ./create_redefines.sh 'n' 's/.*/__system_&/' <legacy/aliases)
-LIBCOMPAT_REDEFINES_PHASE_ONE := \
+LIBLEGACY_REDEFINES_PHASE_ONE := \
 	$(shell ./create_redefines.sh 'n' 's/.*/__system_&/' <legacy/aliases)
-LIBCOMPAT_REDEFINES_PHASE_TWO := \
+LIBLEGACY_REDEFINES_PHASE_TWO := \
 	$(shell ./create_redefines.sh 's/.*/legacy_&/' 'n' <legacy/aliases)
 	
 	
 
-.PHONY: all clean
+.PHONY: all clean .patch_system .patch_self
 
 .SECONDARY:
 
-all: libsystem.a app
+all: app
 
 run: app
 	./app
@@ -29,21 +29,36 @@ run: app
 app: ported/app.o liblegacy.a
 	$(LD) -o $@ $^  
 
-libsystem.a: system/system.o
+system/libsystem.a: system/system.o
 	$(AR) rcs $@ $^
-	
-liblegacy.a: legacy/patched_system/system.o legacy/patched_self/delta.o
-	$(AR) rcs $@ $^
-	
-legacy/patched_self/%.o: legacy/%.o
-	$(OBJCOPY) $(LIBCOMPAT_REDEFINES_PHASE_ONE) $< $@
-	$(OBJCOPY) $(LIBCOMPAT_REDEFINES_PHASE_TWO) $@ $@
 
-legacy/patched_system/%.o: system/%.o
-	$(OBJCOPY) $(LIBSYSTEM_REDEFINES) $< $@
+legacy/liblegacy.a: legacy/delta.o
+	$(AR) rcs $@ $^
+	
+liblegacy.a: .patch_system .patch_self
+	$(AR) rcs $@ legacy/patched_system/*.o legacy/patched_self/*.o
+	
+.patch_system: system/libsystem.a
+	@cd legacy/patched_system; \
+		rm -f *; \
+		$(AR) x ../../$<; \
+		for f in *.o; do \
+			echo "Patching $$f..."; \
+			$(OBJCOPY) $(LIBSYSTEM_REDEFINES) $$f $$f; \
+		done
+
+.patch_self: legacy/liblegacy.a
+	cd legacy/patched_self; \
+		rm -f *; \
+		$(AR) x ../../$<; \
+		for f in *.o; do \
+			echo "Patching $$f..."; \
+			$(OBJCOPY) $(LIBLEGACY_REDEFINES_PHASE_ONE) $$f $$f; \
+			$(OBJCOPY) $(LIBLEGACY_REDEFINES_PHASE_TWO) $$f $$f; \
+		done
 
 ported/%.o: ported/%.c
-	$(CC) -c $(CFLAGS) $(COMPAT_CFLAGS) -o $@ $<
+	$(CC) -c $(CFLAGS) $(LEGACY_CFLAGS) -o $@ $<
 
 %.o: %.c
 	$(CC) -c $(CFLAGS) -o $@ $<
@@ -62,6 +77,6 @@ dist:
 	rm -rf $(DISTNAME)
 
 clean:
-	find -name '*.o' -delete
-	rm -f lib*.a app
+	find -name '*.o' -or -name 'lib*.a' -delete
+	rm -f app
 	
