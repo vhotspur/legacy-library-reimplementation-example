@@ -22,7 +22,3 @@ char *legacy_bravo(char *dest, const char *src) {
 	return dest;
 }
 
-void legacy_read_some_data(legacy_some_data_t *data) {
-	data->alpha = important_data.alpha;
-	data->next = NULL;
-}

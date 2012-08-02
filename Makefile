@@ -32,7 +32,7 @@ app: ported/app.o liblegacy.a
 system/libsystem.a: system/system.o
 	$(AR) rcs $@ $^
 
-legacy/liblegacy.a: legacy/delta.o
+legacy/liblegacy.a: legacy/delta.o legacy/system.o
 	$(AR) rcs $@ $^
 	
 liblegacy.a: .patch_system .patch_self
