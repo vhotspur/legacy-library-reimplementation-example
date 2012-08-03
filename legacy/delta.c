@@ -1,6 +1,6 @@
 #define __LEGACY__(x) legacy_##x
 #include "delta.h"
-#include "../system/system.h"
+#include "../revised/system.h"
 #include <string.h>
 
 int legacy_alpha_opt = 52;

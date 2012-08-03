@@ -8,16 +8,16 @@ AR = ar
 
 DISTNAME = func_renaming
 
-LIBSYSTEM_REDEFINES := \
-	$(shell ./create_redefines.sh 'n' 's/.*/__system_&/' <legacy/aliases)
+LIBREVISED_REDEFINES := \
+	$(shell ./create_redefines.sh 'n' 's/.*/__revised_&/' <legacy/aliases)
 LIBLEGACY_REDEFINES_PHASE_ONE := \
-	$(shell ./create_redefines.sh 'n' 's/.*/__system_&/' <legacy/aliases)
+	$(shell ./create_redefines.sh 'n' 's/.*/__revised_&/' <legacy/aliases)
 LIBLEGACY_REDEFINES_PHASE_TWO := \
 	$(shell ./create_redefines.sh 's/.*/legacy_&/' 'n' <legacy/aliases)
 	
 	
 
-.PHONY: all clean .patch_system .patch_self
+.PHONY: all clean .patch_revised .patch_self
 
 .SECONDARY:
 
@@ -29,22 +29,22 @@ run: app
 app: ported/app.o liblegacy.a
 	$(LD) -o $@ $^  
 
-system/libsystem.a: system/system.o
+revised/librevised.a: revised/system.o
 	$(AR) rcs $@ $^
 
 legacy/liblegacy.a: legacy/delta.o legacy/system.o
 	$(AR) rcs $@ $^
 	
-liblegacy.a: .patch_system .patch_self
-	$(AR) rcs $@ legacy/patched_system/*.o legacy/patched_self/*.o
+liblegacy.a: .patch_revised .patch_self
+	$(AR) rcs $@ legacy/patched_revised/*.o legacy/patched_self/*.o
 	
-.patch_system: system/libsystem.a
-	@cd legacy/patched_system; \
+.patch_revised: revised/librevised.a
+	@cd legacy/patched_revised; \
 		rm -f *; \
 		$(AR) x ../../$<; \
 		for f in *.o; do \
 			echo "Patching $$f..."; \
-			$(OBJCOPY) $(LIBSYSTEM_REDEFINES) $$f $$f; \
+			$(OBJCOPY) $(LIBREVISED_REDEFINES) $$f $$f; \
 		done
 
 .patch_self: legacy/liblegacy.a
@@ -65,12 +65,12 @@ ported/%.o: ported/%.c
 
 dist:
 	mkdir $(DISTNAME)
-	mkdir $(DISTNAME)/legacy $(DISTNAME)/legacy/patched_system $(DISTNAME)/legacy/patched_self $(DISTNAME)/ported $(DISTNAME)/system
+	mkdir $(DISTNAME)/legacy $(DISTNAME)/legacy/patched_revised $(DISTNAME)/legacy/patched_self $(DISTNAME)/ported $(DISTNAME)/revised
 	
 	cp Makefile create_redefines.sh $(DISTNAME)
 	cp legacy/*.[hc] legacy/aliases $(DISTNAME)/legacy
 	cp ported/*.[hc] $(DISTNAME)/ported
-	cp system/*.[hc] $(DISTNAME)/system
+	cp revised/*.[hc] $(DISTNAME)/revised
 	
 	tar czf $(DISTNAME).tar.gz $(DISTNAME)
 	
