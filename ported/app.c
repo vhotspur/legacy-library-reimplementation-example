@@ -1,4 +1,5 @@
 #include <delta.h>
+#include <compute.h>
 #include <stdio.h>
 
 typedef int (*alpha_func_t)(int);
@@ -26,6 +27,11 @@ void test_some_data(some_data_t *data) {
 	printf("some_data_t = { %d, %p }\n", data->alpha, data->next);
 }
 
+void test_min(int a, int b, int c) {
+	int result = min3(a, b, c);
+	printf("min3(%d, %d, %d) -> %d\n", a, b, c, result);
+}
+
 int main(int argc, char *argv[]) {
 	test_alpha(20, 15);
 	test_alpha(5, 4);
@@ -33,6 +39,10 @@ int main(int argc, char *argv[]) {
 	alpha_func_t func = &alpha;
 	test_alpha_ptr(func, 1, 7);
 	test_alpha_ptr(func, 16, -2);
+
+	test_min(1, 8, 16);
+	test_min(5, -2, 7);
+	test_min(-4, -17, -82);
 
 	test_bravo("Hello, World!");
 	test_bravo("!");

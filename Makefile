@@ -29,7 +29,7 @@ run: app
 app: ported/app.o liblegacy.a
 	$(LD) -o $@ $^  
 
-revised/librevised.a: revised/system.o
+revised/librevised.a: revised/system.o revised/compute.o
 	$(AR) rcs $@ $^
 
 legacy/liblegacy.a: legacy/delta.o legacy/system.o
