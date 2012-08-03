@@ -1,5 +1,6 @@
 *.o
 lib*.a
+legacy/collisions
 app
 .*project
 

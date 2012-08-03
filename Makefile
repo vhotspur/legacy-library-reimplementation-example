@@ -8,12 +8,14 @@ AR = ar
 
 DISTNAME = func_renaming
 
-LIBREVISED_REDEFINES := \
-	$(shell ./create_redefines.sh 'n' 's/.*/__revised_&/' <legacy/aliases)
-LIBLEGACY_REDEFINES_PHASE_ONE := \
-	$(shell ./create_redefines.sh 'n' 's/.*/__revised_&/' <legacy/aliases)
-LIBLEGACY_REDEFINES_PHASE_TWO := \
-	$(shell ./create_redefines.sh 's/.*/legacy_&/' 'n' <legacy/aliases)
+COLLISION_FILE = legacy/collisions
+
+LIBREVISED_REDEFINES = \
+	$(shell ./create_redefines.sh 'n' 's/.*/__revised_&/' <$(COLLISION_FILE))
+LIBLEGACY_REDEFINES_PHASE_ONE = \
+	$(shell ./create_redefines.sh 'n' 's/.*/__revised_&/' <$(COLLISION_FILE))
+LIBLEGACY_REDEFINES_PHASE_TWO = \
+	$(shell ./create_redefines.sh 's/.*/legacy_&/' 'n' <$(COLLISION_FILE))
 	
 	
 
@@ -37,9 +39,16 @@ legacy/liblegacy.a: legacy/delta.o legacy/system.o
 	
 liblegacy.a: .patch_revised .patch_self
 	$(AR) rcs $@ legacy/patched_revised/*.o legacy/patched_self/*.o
-	
-.patch_revised: revised/librevised.a
-	@cd legacy/patched_revised; \
+
+$(COLLISION_FILE): legacy/*.h
+	cat $^ \
+		| sed -n -e '/^#/d' -e 's/__LEGACY__/\n&/gp' \
+		| sed -n -e 's/__LEGACY__(\([^)]*\)).*/\1/p' \
+		| sort -u \
+		> $@
+
+.patch_revised: revised/librevised.a $(COLLISION_FILE)
+	cd legacy/patched_revised; \
 		rm -f *; \
 		$(AR) x ../../$<; \
 		for f in *.o; do \
@@ -47,7 +56,7 @@ liblegacy.a: .patch_revised .patch_self
 			$(OBJCOPY) $(LIBREVISED_REDEFINES) $$f $$f; \
 		done
 
-.patch_self: legacy/liblegacy.a
+.patch_self: legacy/liblegacy.a $(COLLISION_FILE)
 	cd legacy/patched_self; \
 		rm -f *; \
 		$(AR) x ../../$<; \
@@ -78,5 +87,5 @@ dist:
 
 clean:
 	find -name '*.o' -or -name 'lib*.a' -delete
-	rm -f app
+	rm -f app legacy/collisions
 	
