@@ -1,4 +1,5 @@
 #include "system.h"
+#include "err.h"
 #include <stddef.h>
 #include <string.h>
 
@@ -14,4 +15,9 @@ int alpha(int param, int param2) {
 void bravo(char *dest, const char *src, size_t n) {
 	strncpy(dest, src, n);
 	bravo_opt = src;
+}
+
+int delta(void)
+{
+	return ERR_NOTSUP;
 }

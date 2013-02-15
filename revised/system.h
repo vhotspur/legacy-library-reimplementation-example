@@ -6,6 +6,7 @@
 extern int alpha(int, int);
 extern const char *bravo_opt;
 extern void bravo(char *, const char *, size_t);
+extern int delta(void);
 
 typedef struct {
 	int alpha;

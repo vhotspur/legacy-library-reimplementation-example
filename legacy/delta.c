@@ -2,6 +2,7 @@
 #include "delta.h"
 #include "../revised/system.h"
 #include <string.h>
+#include "err.h"
 
 int legacy_alpha_opt = 52;
 char *legacy_bravo_opt;
@@ -22,3 +23,7 @@ char *legacy_bravo(char *dest, const char *src) {
 	return dest;
 }
 
+int legacy_delta(void) {
+	int rc = delta();
+	return -rc;
+}

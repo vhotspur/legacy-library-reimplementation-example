@@ -19,6 +19,8 @@ extern char *__LEGACY__(bravo_opt);
 
 extern void __LEGACY__(read_some_data)(__LEGACY__(some_data_t) *);
 
+extern int __LEGACY__(delta)(void);
+
 #undef __LEGACY__
 
 #endif

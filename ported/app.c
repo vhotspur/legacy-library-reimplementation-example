@@ -1,4 +1,5 @@
 #include <delta.h>
+#include <err.h>
 #include <compute.h>
 #include <stdio.h>
 
@@ -56,6 +57,9 @@ int main(int argc, char *argv[]) {
 
 	read_some_data(&data);
 	test_some_data(&data);
+
+	printf("Error codes ought to be positive: %d.\n", ERR_INVAL);
+	printf("delta() returned %d.\n", delta());
 
 
 	return 0;
